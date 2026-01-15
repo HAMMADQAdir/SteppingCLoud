@@ -1,0 +1,31 @@
+const mongoose = require('mongoose');
+
+/**
+ * MongoDB Atlas Connection Configuration
+ * Establishes connection to cloud database with proper error handling
+ */
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+    console.log(`📊 Database: ${conn.connection.name}`);
+  } catch (error) {
+    console.error(`❌ MongoDB Connection Error: ${error.message}`);
+    process.exit(1); // Exit with failure
+  }
+};
+
+// Handle connection events
+mongoose.connection.on('disconnected', () => {
+  console.warn('⚠️ MongoDB disconnected. Attempting to reconnect...');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error(`❌ MongoDB error: ${err.message}`);
+});
+
+module.exports = connectDB;
